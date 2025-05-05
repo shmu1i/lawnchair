@@ -64,6 +64,16 @@
         launcher:deviceCategory="phone|multi_display" >
 
         <display-option
+           launcher:name="DOOV Small Screen"
+           launcher:minWidthDps="360"
+           launcher:minHeightDps="540"
+           launcher:iconImageSize="80"
+           launcher:iconTextSize="15.0"
+           launcher:allAppsBorderSpace="8"
+           launcher:allAppsCellHeight="110"
+           launcher:canBeDefault="true" />
+
+        <display-option
             launcher:name="Short Stubby"
             launcher:minWidthDps="275"
             launcher:minHeightDps="420"
