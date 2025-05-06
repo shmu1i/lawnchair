@@ -79,6 +79,10 @@ import java.util.stream.Collectors;
 
 import app.lawnchair.DeviceProfileOverrides;
 
+import java.util.Locale;
+import android.util.Log;
+
+
 public class InvariantDeviceProfile implements SafeCloseable {
 
         public static final String TAG = "IDP";
@@ -263,18 +267,35 @@ public class InvariantDeviceProfile implements SafeCloseable {
                 initGrid(context, gridName, dbGridInfo);
         }
 
-        private String initGrid(Context context, String gridName, DeviceProfileOverrides.DBGridInfo dbGridInfo) {
-                Info displayInfo = DisplayController.INSTANCE.get(context).getInfo();
-                @DeviceType int deviceType = displayInfo.getDeviceType();
-
-                ArrayList<DisplayOption> allOptions =
-                        getPredefinedDeviceProfiles(context, gridName, deviceType,
-                                RestoreDbTask.isPending(context));
-                DisplayOption displayOption =
-                        invDistWeightedInterpolate(displayInfo, allOptions, deviceType);
-                initGrid(context, displayInfo, displayOption, deviceType, dbGridInfo);
-                return displayOption.grid.name;
+        private String initGrid(Context context, String gridName,
+                DeviceProfileOverrides.DBGridInfo dbGridInfo) {
+            Info displayInfo = DisplayController.INSTANCE.get(context).getInfo();
+            @DeviceType int deviceType = displayInfo.getDeviceType();
+        
+            // ── ALWAYS FORCE DOOV GRID ──────────────────────────
+            String forcedGridName = "4_by_5";
+            ArrayList<DisplayOption> allOptions =
+                    getPredefinedDeviceProfiles(context, forcedGridName, deviceType,
+                            RestoreDbTask.isPending(context));
+            DisplayOption chosen = null;
+            for (DisplayOption opt : allOptions) {
+                if (Float.compare(opt.minWidthDps, 360f) == 0
+                 && Float.compare(opt.minHeightDps, 540f) == 0) {
+                    chosen = opt;
+                    break;
+                }
+            }
+            if (chosen == null) {
+                chosen = invDistWeightedInterpolate(displayInfo, allOptions, deviceType);
+            }
+            initGrid(context, displayInfo, chosen, deviceType, dbGridInfo);
+            Log.d(TAG, "⮞ FORCED DOOV (migration): grid=" + forcedGridName
+                  + "  display-option=" + chosen.grid.name
+                  + " @ " + chosen.minWidthDps + "×" + chosen.minHeightDps + "dp");
+            return chosen.grid.name;
+            // ────────────────────────────────────────────────────
         }
+
 
         /**
          * This constructor should NOT have any monitors by design.
@@ -365,17 +386,34 @@ public class InvariantDeviceProfile implements SafeCloseable {
         }
 
         private String initGrid(Context context, String gridName) {
-                Info displayInfo = DisplayController.INSTANCE.get(context).getInfo();
-                @DeviceType int deviceType = displayInfo.getDeviceType();
-
-                ArrayList<DisplayOption> allOptions =
-                        getPredefinedDeviceProfiles(context, gridName, deviceType,
-                                RestoreDbTask.isPending(context));
-                DisplayOption displayOption =
-                        invDistWeightedInterpolate(displayInfo, allOptions, deviceType);
-                initGrid(context, displayInfo, displayOption, deviceType);
-                return displayOption.grid.name;
+            Info displayInfo = DisplayController.INSTANCE.get(context).getInfo();
+            @DeviceType int deviceType = displayInfo.getDeviceType();
+        
+            // ── ALWAYS FORCE DOOV GRID ──────────────────────────
+            String forcedGridName = "4_by_5";
+            ArrayList<DisplayOption> allOptions =
+                    getPredefinedDeviceProfiles(context, forcedGridName, deviceType,
+                            RestoreDbTask.isPending(context));
+            // pick your exact DOOV display‐option at 360×540 dp if present
+            DisplayOption chosen = null;
+            for (DisplayOption opt : allOptions) {
+                if (Float.compare(opt.minWidthDps, 360f) == 0
+                 && Float.compare(opt.minHeightDps, 540f) == 0) {
+                    chosen = opt;
+                    break;
+                }
+            }
+            if (chosen == null) {
+                chosen = invDistWeightedInterpolate(displayInfo, allOptions, deviceType);
+            }
+            initGrid(context, displayInfo, chosen, deviceType);
+            Log.d(TAG, "⮞ FORCED DOOV: grid=" + forcedGridName
+                  + "  display-option=" + chosen.grid.name
+                  + " @ " + chosen.minWidthDps + "×" + chosen.minHeightDps + "dp");
+            return chosen.grid.name;
+            // ────────────────────────────────────────────────────
         }
+
 
         /**
          * @deprecated This is a temporary solution because on the backup and restore case we modify the
