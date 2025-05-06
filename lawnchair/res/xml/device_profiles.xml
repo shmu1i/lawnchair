@@ -61,18 +61,22 @@
         launcher:devicePaddingId="@xml/paddings_4x5"
         launcher:inlineNavButtonsEndSpacing="@dimen/taskbar_button_margin_split"
         launcher:defaultLayoutId="@xml/default_workspace_4x5"
-        launcher:deviceCategory="phone|multi_display" >
-
+        launcher:deviceCategory="phone|multi_display">
         <display-option
             launcher:name="DOOV Small Screen"
             launcher:minWidthDps="360"
             launcher:minHeightDps="540"
+            launcher:minCellWidth="80"
+            launcher:minCellHeight="80"
+            launcher:borderSpace="8"
             launcher:iconImageSize="80"
             launcher:iconTextSize="15.0"
+            launcher:allAppsCellWidth="80"
+            launcher:allAppsCellHeight="80"
             launcher:allAppsBorderSpace="8"
-            launcher:allAppsCellHeight="110"
-            launcher:canBeDefault="true" />
-
+            launcher:allAppsIconSize="80"
+            launcher:allAppsIconTextSize="15.0"
+            launcher:canBeDefault="true"/>
     </grid-option>
 
     <grid-option
